@@ -4,102 +4,72 @@
 To design and deploy a prototype application for image captioning by utilizing the BLIP image-captioning model and integrating it with the Gradio UI framework for user interaction and evaluation.
 
 ### PROBLEM STATEMENT:
-Image captioning is a challenging task in Artificial Intelligence that combines Computer Vision and Natural Language Processing to automatically generate meaningful textual descriptions for images. Manual image annotation is time-consuming and impractical for large-scale applications such as social media platforms, digital libraries, and assistive technologies for visually impaired individuals. Therefore, an automated system is required to accurately analyze image content and generate relevant captions in natural language.
+Image captioning is the task of generating a textual description for a given image. This is crucial for applications like accessibility tools for visually impaired users, content generation, and image indexing. Traditional systems often rely on predefined labels or are limited in context understanding. By leveraging the BLIP model—a state-of-the-art vision-language pretraining model—this project aims to create an intuitive and efficient application for real-time image captioning, accessible via the Gradio interface.
 
-The objective of this project is to develop a prototype image captioning application using the BLIP (Bootstrapping Language-Image Pre-training) model integrated with the Gradio framework. The system should accept image inputs from users and automatically generate descriptive captions through an interactive web-based interface.
 
 ### DESIGN STEPS:
+STEP 1:
+Model Preparation
+Use a pre-trained BLIP image-captioning model available from Hugging Face Transformers or similar libraries. Ensure the model supports inference on diverse image types and contexts.
 
-#### STEP 1:
+STEP 2:
+Framework
+Use Gradio to create a UI with the following components: Input: File upload for images. Output: Textbox showing the generated caption.
 
-Install and import the necessary libraries such as transformers, torch, PIL, and gradio required for image processing and caption generation.
+STEP 3:
+Workflow
+Load the BLIP model and tokenizer. Accept an image as input via Gradio's file upload. Preprocess the image for the BLIP model. Generate a caption using the BLIP model's inference pipeline. Display the caption on the Gradio interface.
 
-#### STEP 2:
-
-Load the pre-trained BLIP image captioning model and processor from the Hugging Face Transformers library.
-
-#### STEP 3:
-
-Create a Python function that accepts an input image, processes it using the BLIP model, and generates an appropriate textual caption.
-
-#### STEP 4:
-
-Design an interactive Gradio user interface that enables users to upload images and view generated captions instantly.
-
-#### STEP 5:
-
-Launch and test the Gradio application locally or through a browser interface to evaluate the performance of the image captioning system.
+STEP 4:
+Testing and Deployment
+Test the application with various image types to ensure the captions are meaningful and diverse. Deploy the application on a public URL using Gradio’s hosting features or external platforms like Hugging Face Spaces.
 
 ### PROGRAM:
-```PYTHON
+```
 import os
-import io
-import IPython.display
 from PIL import Image
-import base64 
-from dotenv import load_dotenv, find_dotenv
-_ = load_dotenv(find_dotenv()) # read local .env file
-hf_api_key = os.environ['HF_API_KEY']
-```
-```PYTHON
-# Helper functions
-import requests, json
+import gradio as gr
+from google import genai
 
-#Image-to-text endpoint
-def get_completion(inputs, parameters=None, ENDPOINT_URL=os.environ['HF_API_ITT_BASE']):
-    headers = {
-      "Authorization": f"Bearer {hf_api_key}",
-      "Content-Type": "application/json"
-    }
-    data = { "inputs": inputs }
-    if parameters is not None:
-        data.update({"parameters": parameters})
-    response = requests.request("POST",
-                                ENDPOINT_URL,
-                                headers=headers,
-                                data=json.dumps(data))
-    return json.loads(response.content.decode("utf-8"))
-```
-```PYTHON
-image_url = "https://free-images.com/lg/50d5/apple_desk_laptop_macbook.jpg"
-display(IPython.display.Image(url=image_url))
-get_completion(image_url)
-```
-```PYTHON
-import gradio as gr 
+# 1. Set Gemini API Key (Replace with your actual key)
+api_key = "YOUR API key"
+client = genai.Client(api_key=api_key)
 
-def image_to_base64_str(pil_image):
-    byte_arr = io.BytesIO()
-    pil_image.save(byte_arr, format='PNG')
-    byte_arr = byte_arr.getvalue()
-    return str(base64.b64encode(byte_arr).decode('utf-8'))
-
+# 2. Define Image Captioning Function
 def captioner(image):
-    base64_image = image_to_base64_str(image)
-    result = get_completion(base64_image)
-    return result[0]['generated_text']
+    if image is None:
+        return "Please upload an image."
+    try:
+        prompt = "Write a short, descriptive caption for this image."
+        response = client.models.generate_content(
+            model='gemini-3.6-flash',
+            contents=[image, prompt]
+        )
+        return response.text
+    except Exception as e:
+        return f"Error: {str(e)}"
 
+# 3. Build & Launch Gradio Interface
 gr.close_all()
-print("Name: AMIRTHA VARSHINI M")
-print("Register Number: 212224230017")
-demo = gr.Interface(fn=captioner,
-                    inputs=[gr.Image(label="Upload image", type="pil")],
-                    outputs=[gr.Textbox(label="Caption")],
-                    title="Image Captioning with BLIP",
-                    description="Caption any image using the BLIP model",
-                    allow_flagging="never",
-                    examples=["christmas_dog.jpeg", "bird_flight.jpeg", "cow.jpeg"])
 
-demo.launch(share=True, server_port=int(os.environ['PORT1']))
+demo = gr.Interface(
+    fn=captioner,
+    inputs=[gr.Image(label="Upload image", type="pil")],
+    outputs=[gr.Textbox(label="Caption", lines=3)],
+    title="Image Captioning with Gemini",
+    description="Upload an image to generate a descriptive caption using Gemini 3.6 Flash.",
+    flagging_mode="never"
+)
+
+# Launches inline inside your Jupyter Notebook
+demo.launch(inline=True)
 ```
+
+
 
 
 ### OUTPUT:
-
-<img width="1367" height="777" alt="image" src="https://github.com/user-attachments/assets/803b112d-2bba-4cbb-8d8e-ffc823b7f547" />
-
-<img width="1194" height="901" alt="image" src="https://github.com/user-attachments/assets/0467d0c8-fd80-4a6e-ae72-30a895501790" />
+<img width="726" height="342" alt="image" src="https://github.com/user-attachments/assets/9573c103-9393-4492-8cd8-c65d3db527bf" />
 
 ### RESULT:
-
-The prototype image captioning application was successfully developed using the BLIP model and Gradio framework. The system effectively generates meaningful captions for uploaded images through an interactive and user-friendly interface.
+The application successfully generates high-quality images based on user-provided text prompts. The Stable Diffusion model ensures visually appealing results, and the Gradio interface makes it accessible and interactive.
