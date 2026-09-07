@@ -25,7 +25,7 @@ Testing and Deployment
 Test the application with various image types to ensure the captions are meaningful and diverse. Deploy the application on a public URL using Gradio’s hosting features or external platforms like Hugging Face Spaces.
 
 ### PROGRAM:
-```
+```python
 import os
 from PIL import Image
 import gradio as gr
