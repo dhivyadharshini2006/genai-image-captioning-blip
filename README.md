@@ -30,9 +30,7 @@ import os
 from PIL import Image
 import gradio as gr
 from google import genai
-
-# 1. Set Gemini API Key (Replace with your actual key)
-api_key = "YOUR API key"
+api_key = "YOUR API KEY"
 client = genai.Client(api_key=api_key)
 
 # 2. Define Image Captioning Function
@@ -69,7 +67,8 @@ demo.launch(inline=True)
 
 
 ### OUTPUT:
-<img width="726" height="342" alt="image" src="https://github.com/user-attachments/assets/9573c103-9393-4492-8cd8-c65d3db527bf" />
+<img width="802" height="557" alt="image" src="https://github.com/user-attachments/assets/e47cb694-03d2-4d81-9723-c7f0403bb58f" />
+
 
 ### RESULT:
 The application successfully generates high-quality images based on user-provided text prompts. The Stable Diffusion model ensures visually appealing results, and the Gradio interface makes it accessible and interactive.
